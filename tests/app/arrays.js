@@ -34,11 +34,7 @@ define([ 'use!underscore' ], function(_) {
     it("you should be able to remove an item from an array", function() {
       // define a function for fn so that the following will pass
       fn = function(arr, item) {
-        arr.forEach(function(el, i) {
-          if (el == item) {
-            arr.splice(i, 1);
-          }
-        });
+        arr.splice(arr.indexOf(item), 1);
         return arr;
       };
       var result = fn(a, 2);
