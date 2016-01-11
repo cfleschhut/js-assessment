@@ -1,17 +1,21 @@
-define([ 'use!underscore' ], function(_) {
-  describe("the module pattern", function() {
-    var fn = function() {};
+if ( typeof window === 'undefined' ) {
+  require('../../app/modules');
+  var expect = require('chai').expect;
+}
 
-    it("you should be able to create a function that returns a module", function() {
-      fn = function() {
-        // write a function that makes the tests pass
-      };
+describe('the module pattern', function() {
+  it('you should be able to create a function that returns a module', function() {
+    var module = modulesAnswers.createModule('hello', 'matt');
 
-      var module = fn('hello', 'matt');
-      expect(module.name).to.be.ok();
-      expect(module.greeting).to.be.ok();
-      expect(module.sayIt).to.be.a('function');
-      expect(module.sayIt()).to.be('hello, matt');
-    });
+    expect(module.sayIt).to.be.a('function');
+    expect(module.name).to.eql('matt');
+    expect(module.greeting).to.eql('hello');
+    expect(module.sayIt()).to.eql('hello, matt');
+
+    module.name = 'katniss';
+    module.greeting = 'hi';
+    expect(module.name).to.eql('katniss');
+    expect(module.greeting).to.eql('hi');
+    expect(module.sayIt()).to.eql('hi, katniss');
   });
 });

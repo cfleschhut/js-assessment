@@ -1,42 +1,30 @@
-define([ 'use!underscore' ], function(_) {
-  describe("flow control", function() {
-    var fn;
+if ( typeof window === 'undefined' ) {
+  require('../../app/flowControl');
+  var expect = require('chai').expect;
+}
 
-    beforeEach(function() {
-      fn = function() { };
-    });
+describe('flow control', function() {
+  it('you should be able to conditionally branch your code', function() {
+    var num = 0;
 
-    it("you should be able to conditionally branch your code", function() {
-      fn = function() {
-        // write a function that receives a number as its argument;
-        // if the number is divisible by 3, the function should return 'fizz';
-        // if the number is divisible by 5, the function should return 'buzz';
-        // if the number is divisible the 3 and 5, the function should return
-        // 'fizzbuzz';
-        // otherwise the function should return the number
-      };
+    while (num % 3 === 0 || num % 5 === 0) {
+      num = Math.floor(Math.random() * 10) + 1;
+    }
 
-      // replace the following test with tests that prove your function works
-      expect(fn()).to.be.ok();
-    });
+    expect(flowControlAnswers.fizzBuzz()).not.to.be.ok;
+    expect(flowControlAnswers.fizzBuzz('foo')).not.to.be.ok;
+    expect(flowControlAnswers.fizzBuzz(2)).to.eql(2);
+    expect(flowControlAnswers.fizzBuzz(101)).to.eql(101);
 
-    it("you should be able to work with logical operators", function() {
-      var and = function(val1, val2) {
-            // write a function that makes the tests below pass
-          },
+    expect(flowControlAnswers.fizzBuzz(3)).to.eql('fizz');
+    expect(flowControlAnswers.fizzBuzz(6)).to.eql('fizz');
+    expect(flowControlAnswers.fizzBuzz(num * 3)).to.eql('fizz');
 
-          or = function(val1, val2) {
-            // write a function that makes the tests below pass
-          };
+    expect(flowControlAnswers.fizzBuzz(5)).to.eql('buzz');
+    expect(flowControlAnswers.fizzBuzz(10)).to.eql('buzz');
+    expect(flowControlAnswers.fizzBuzz(num * 5)).to.eql('buzz');
 
-      expect(and(false, false)).not.to.be.ok();
-      expect(and(true, false)).not.to.be.ok();
-      expect(and(true, true)).to.be.ok();
-
-      expect(or(true, false)).to.be.ok();
-      expect(or(true, true)).to.be.ok();
-      expect(or(false, false)).not.to.be.ok();
-    });
+    expect(flowControlAnswers.fizzBuzz(15)).to.eql('fizzbuzz');
+    expect(flowControlAnswers.fizzBuzz(num * 3 * 5)).to.eql('fizzbuzz');
   });
-
 });

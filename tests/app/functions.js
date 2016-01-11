@@ -1,119 +1,145 @@
-define([ 'use!underscore' ], function(_) {
-  describe("functions", function() {
-    var sayIt = function(greeting, name, punctuation) {
-          return greeting + ', ' + name + (punctuation || '!');
-        },
-        fn = function() {};
+if ( typeof window === 'undefined' ) {
+  require('../../app/functions');
+  var expect = require('chai').expect;
+}
 
-    it("you should be able to use an array as arguments when calling a function", function() {
-      var result = fn([ 'Hello', 'Ellie', '!' ]);
-      expect(result).to.be('Hello, Ellie!');
-    });
-
-    it("you should be able to change the context in which a function is called", function() {
-      var speak = function() {
-            return sayIt(this.greeting, this.name, '!!!');
-          },
-          obj = {
-            greeting : 'Hello',
-            name : 'Rebecca'
-          };
-
-      // define a function for fn that calls the speak function such that the
-      // following test will pass
-      expect(fn()).to.be('Hello, Rebecca!!!');
-    });
-
-    it("you should be able to return a function from a function", function() {
-      // define a function for fn so that the following will pass
-      expect(fn('Hello')('world')).to.be('Hello, world');
-    });
-
-    it("you should be able to create a 'partial' function", function() {
-      // define a function for fn so that the following will pass
-      var partial = fn(sayIt, 'Hello', 'Ellie');
-      expect(partial('!!!')).to.be('Hello, Ellie!!!');
-    });
-
-    it("you should be able to use arguments", function () {
-      fn = function () {
-        // you can only edit function body here
+describe('functions', function() {
+  var sayItCalled = false;
+  var sayIt = function(greeting, name, punctuation) {
+        sayItCalled = true;
+        return greeting + ', ' + name + (punctuation || '!');
       };
 
-      var a = Math.random(), b = Math.random(), c = Math.random(), d = Math.random();
-      expect(fn(a)).to.be(a);
-      expect(fn(a, b)).to.be(a + b);
-      expect(fn(a, b, c)).to.be(a + b + c);
-      expect(fn(a, b, c, d)).to.be(a + b + c + d);
-    });
+  beforeEach(function () {
+    sayItCalled = false;
+  });
 
-    it("you should be able to apply functions", function () {
-      fn = function (fun) {
-        // you can only edit function body here
-      };
+  it('you should be able to use an array as arguments when calling a function', function() {
+    var result = functionsAnswers.argsAsArray(sayIt, [ 'Hello', 'Ellie', '!' ]);
+    expect(result).to.eql('Hello, Ellie!');
+    expect(sayItCalled).to.be.ok;
+  });
 
-      (function () {
-        var a = Math.random(), b = Math.random(), c = Math.random();
-
-        var wasITake2ArgumentsCalled = false;
-        var iTake2Arguments = function (firstArgument, secondArgument) {
-          expect(arguments.length).to.be(2);
-          expect(firstArgument).to.be(a);
-          expect(secondArgument).to.be(b);
-
-          wasITake2ArgumentsCalled = true;
+  it('you should be able to change the context in which a function is called', function() {
+    var speak = function() {
+          return sayIt(this.greeting, this.name, '!!!');
+        };
+    var obj = {
+          greeting : 'Hello',
+          name : 'Rebecca'
         };
 
-        var wasITake3ArgumentsCalled = false;
-        var iTake3Arguments = function (firstArgument, secondArgument, thirdArgument) {
-          expect(arguments.length).to.be(3);
-          expect(firstArgument).to.be(a);
-          expect(secondArgument).to.be(b);
-          expect(thirdArgument).to.be(c);
+    var result = functionsAnswers.speak(speak, obj);
+    expect(result).to.eql('Hello, Rebecca!!!');
+    expect(sayItCalled).to.be.ok;
+  });
 
-          wasITake3ArgumentsCalled = true;
-        };
+  it('you should be able to return a function from a function', function() {
+    expect(functionsAnswers.functionFunction('Hello')('world')).to.eql('Hello, world');
+    expect(functionsAnswers.functionFunction('Hai')('can i haz funxtion?')).to.eql('Hai, can i haz funxtion?');
+  });
 
-        fn(iTake2Arguments, a, b);
-        fn(iTake3Arguments, a, b, c);
-        expect(wasITake2ArgumentsCalled).to.be.ok();
-        expect(wasITake3ArgumentsCalled).to.be.ok();
-      })();
-    });
+  it('you should be able to use closures', function () {
+    var arr = [ Math.random(), Math.random(), Math.random(), Math.random() ];
+    var square = function (x) { return x * x; };
 
-    it("you should be able to curry existing functions", function () {
-      fn = function (fun) {
-        // you can only edit function body here
+    var funcs = functionsAnswers.makeClosures(arr, square);
+    expect(funcs).to.have.length(arr.length);
+
+    for (var i = 0; i < arr.length; i++) {
+      expect(funcs[i]()).to.eql(square(arr[i]));
+    }
+  });
+
+  it('you should be able to create a "partial" function', function() {
+    var partial = functionsAnswers.partial(sayIt, 'Hello', 'Ellie');
+    expect(partial('!!!')).to.eql('Hello, Ellie!!!');
+    expect(sayItCalled).to.be.ok;
+  });
+
+  it('you should be able to use arguments', function () {
+    var a = Math.random();
+    var b = Math.random();
+    var c = Math.random();
+    var d = Math.random();
+
+    expect(functionsAnswers.useArguments(a)).to.eql(a);
+    expect(functionsAnswers.useArguments(a, b)).to.eql(a + b);
+    expect(functionsAnswers.useArguments(a, b, c)).to.eql(a + b + c);
+    expect(functionsAnswers.useArguments(a, b, c, d)).to.eql(a + b + c + d);
+  });
+
+  it('you should be able to apply functions with arbitrary numbers of arguments', function () {
+    (function () {
+      var a = Math.random();
+      var b = Math.random();
+      var c = Math.random();
+
+      var wasITake2ArgumentsCalled = false;
+      var iTake2Arguments = function (firstArgument, secondArgument) {
+        expect(arguments.length).to.eql(2);
+        expect(firstArgument).to.eql(a);
+        expect(secondArgument).to.eql(b);
+
+        wasITake2ArgumentsCalled = true;
       };
 
-      var curryMe = function (x, y, z) {
-        return x / y * z;
+      var wasITake3ArgumentsCalled = false;
+      var iTake3Arguments = function (firstArgument, secondArgument, thirdArgument) {
+        expect(arguments.length).to.eql(3);
+        expect(firstArgument).to.eql(a);
+        expect(secondArgument).to.eql(b);
+        expect(thirdArgument).to.eql(c);
+
+        wasITake3ArgumentsCalled = true;
       };
 
-      var a = Math.random(), b = Math.random(), c = Math.random();
-      expect(fn(curryMe)(a, b, c)).to.be(curryMe(a, b, c));
-      expect(fn(curryMe, a)(b, c)).to.be(curryMe(a, b, c));
-      expect(fn(curryMe, a, b)(c)).to.be(curryMe(a, b, c));
-      expect(fn(curryMe, a, b, c)()).to.be(curryMe(a, b, c));
-      expect(fn(curryMe, a, b, c)()).to.be(curryMe(a, b, c));
-      expect(fn(curryMe, b, a, c)()).to.be(curryMe(b, a, c));
-    });
+      functionsAnswers.callIt(iTake2Arguments, a, b);
+      functionsAnswers.callIt(iTake3Arguments, a, b, c);
 
-    it('you should be able to use closures', function () {
-      var arr = [ Math.random(), Math.random(), Math.random(), Math.random() ];
-      var doSomeStuff;
+      expect(wasITake2ArgumentsCalled).to.be.ok;
+      expect(wasITake3ArgumentsCalled).to.be.ok;
+    }());
+  });
 
-      fn = function (vals) {
-        // you can only edit function body here
-      };
+  it('you should be able to create a "partial" function for variable number of applied arguments', function () {
+    var partialMe = function (x, y, z) {
+      return x / y * z;
+    };
 
-      doSomeStuff = function (x) { return x * x; };
+    var a = Math.random();
+    var b = Math.random();
+    var c = Math.random();
+    expect(functionsAnswers.partialUsingArguments(partialMe)(a, b, c)).to.eql(partialMe(a, b, c));
+    expect(functionsAnswers.partialUsingArguments(partialMe, a)(b, c)).to.eql(partialMe(a, b, c));
+    expect(functionsAnswers.partialUsingArguments(partialMe, a, b)(c)).to.eql(partialMe(a, b, c));
+    expect(functionsAnswers.partialUsingArguments(partialMe, a, b, c)()).to.eql(partialMe(a, b, c));
+  });
 
-      var funcs = fn(arr);
-      expect(funcs).to.have.length(arr.length);
-      for (var i = funcs.length - 1; i >= 0; i--) {
-        expect(funcs[i]()).to.be(doSomeStuff(arr[i]));
-      };
-    });
+  it('you should be able to curry existing functions', function () {
+    var curryMe = function (x, y, z) {
+      return x / y * z;
+    };
+
+    var a = Math.random();
+    var b = Math.random();
+    var c = Math.random();
+    var result;
+
+    result = functionsAnswers.curryIt(curryMe);
+    expect(typeof result).to.eql('function');
+    expect(result.length).to.eql(1);
+
+    result = functionsAnswers.curryIt(curryMe)(a);
+    expect(typeof result).to.eql('function');
+    expect(result.length).to.eql(1);
+
+    result = functionsAnswers.curryIt(curryMe)(a)(b);
+    expect(typeof result).to.eql('function');
+    expect(result.length).to.eql(1);
+
+    result = functionsAnswers.curryIt(curryMe)(a)(b)(c);
+    expect(typeof result).to.eql('number');
+    expect(result).to.eql(curryMe(a, b, c));
   });
 });
